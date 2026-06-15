@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>甜光 · Handmade Desserts · Kézműves Desszertek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#F7F4EF;
+    --surface:#FFFFFF;
+    --ink:#2A2522;
+    --ink-soft:#6B6358;
+    --ink-faint:#A39A8C;
+    --accent:#A5573E;
+    --accent-soft:#F1E3DC;
+    --sage:#8B9A7B;
+    --sage-soft:#EBEFE5;
+    --line:#E6E0D6;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Inter',-apple-system,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .serif{font-family:'Fraunces',serif;}
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  input,textarea,select{font-family:inherit;}
+
+  /* ---------- shell ---------- */
+  .shell{max-width:1080px;margin:0 auto;padding:0 24px;}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:28px 0;border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex;align-items:baseline;gap:12px;}
+  .brand-mark{font-family:'Fraunces',serif;font-weight:500;font-size:26px;letter-spacing:0.04em;}
+  .brand-tag{font-size:13px;color:var(--ink-soft);letter-spacing:0.02em;}
+  .cart-btn{
+    display:flex;align-items:center;gap:8px;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:999px;padding:10px 18px;font-size:14px;font-weight:500;
+    color:var(--ink);transition:border-color .15s;
+  }
+  .cart-btn:hover{border-color:var(--accent);}
+  .topbar-right{display:flex;align-items:center;gap:12px;}
+  .lang-switch{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface);}
+  .lang-opt{
+    border:none;background:transparent;padding:8px 12px;font-size:12px;font-weight:500;
+    color:var(--ink-soft);transition:all .15s;letter-spacing:0.02em;
+  }
+  .lang-opt:hover{color:var(--accent);}
+  .lang-opt.active{background:var(--ink);color:var(--surface);}
+  .cart-count{
+    background:var(--accent);color:#fff;border-radius:999px;
+    min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:600;padding:0 5px;
+  }
+
+  /* ---------- hero ---------- */
+  .hero{padding:64px 0 40px;}
+  .hero h1{
+    font-family:'Fraunces',serif;font-weight:400;font-size:44px;
+    line-height:1.25;margin:0 0 16px;letter-spacing:0.01em;
+    max-width:600px;
+  }
+  .hero p{font-size:15px;color:var(--ink-soft);max-width:480px;line-height:1.8;margin:0;}
+  .hero-rule{width:48px;height:2px;background:var(--accent);margin:24px 0;}
+
+  /* ---------- product grid ---------- */
+  .section-label{
+    font-size:12px;letter-spacing:0.18em;text-transform:uppercase;
+    color:var(--ink-faint);margin:0 0 24px;font-weight:500;
+  }
+  .grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:28px;padding-bottom:80px;
+  }
+  .card{
+    display:flex;flex-direction:column;
+  }
+  .card-media{
+    aspect-ratio:4/3;border-radius:var(--radius);
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:16px;overflow:hidden;position:relative;
+    background:var(--swatch,var(--accent-soft));
+  }
+  .card-media img{width:100%;height:100%;object-fit:cover;}
+  .card-media .glyph{
+    font-family:'Fraunces',serif;font-size:40px;font-weight:400;
+    color:rgba(0,0,0,0.18);
+  }
+  .card-sold{
+    position:absolute;inset:0;background:rgba(247,244,239,0.78);
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;color:var(--ink-soft);letter-spacing:0.1em;
+  }
+  .card-body{display:flex;flex-direction:column;flex:1;}
+  .card-title-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px;}
+  .card-title{font-family:'Fraunces',serif;font-size:19px;font-weight:500;margin:0;}
+  .card-price{font-size:15px;font-weight:600;color:var(--accent);white-space:nowrap;}
+  .card-desc{font-size:13px;color:var(--ink-soft);line-height:1.7;margin:0 0 18px;flex:1;}
+  .card-add{
+    border:1px solid var(--ink);background:transparent;color:var(--ink);
+    border-radius:999px;padding:10px 0;font-size:13px;font-weight:500;
+    letter-spacing:0.06em;transition:all .15s;
+  }
+  .card-add:hover{background:var(--ink);color:var(--surface);}
+  .card-add:disabled{border-color:var(--line);color:var(--ink-faint);cursor:default;}
+  .card-add:disabled:hover{background:transparent;color:var(--ink-faint);}
+
+  /* ---------- footer ---------- */
+  .footer{
+    border-top:1px solid var(--line);padding:28px 0 40px;
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:12px;color:var(--ink-faint);
+  }
+  .footer a{color:var(--ink-faint);text-decoration:none;}
+  .footer a:hover{color:var(--accent);}
+
+  /* ---------- cart drawer ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(42,37,34,0.35);
+    opacity:0;visibility:hidden;transition:opacity .25s;z-index:40;
+  }
+  .overlay.open{opacity:1;visibility:visible;}
+  .drawer{
+    position:fixed;top:0;right:0;height:100%;width:min(440px,100%);
+    background:var(--surface);z-index:41;
+    transform:translateX(100%);transition:transform .3s ease;
+    display:flex;flex-direction:column;
+  }
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{
+    padding:28px 28px 20px;border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .drawer-head h2{font-family:'Fraunces',serif;font-size:22px;font-weight:500;margin:0;}
+  .drawer-close{background:none;border:none;font-size:22px;color:var(--ink-soft);line-height:1;padding:4px;}
+  .drawer-body{flex:1;overflow-y:auto;padding:8px 28px;}
+  .ticket-item{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    padding:16px 0;border-bottom:1px dashed var(--line);
+  }
+  .ticket-item:last-child{border-bottom:none;}
+  .ticket-name{font-family:'Fraunces',serif;font-size:15px;font-weight:500;margin:0 0 4px;}
+  .ticket-price{font-size:12px;color:var(--ink-soft);}
+  .qty-control{display:flex;align-items:center;gap:10px;}
+  .qty-btn{
+    width:26px;height:26px;border-radius:50%;border:1px solid var(--line);
+    background:var(--surface);font-size:14px;display:flex;align-items:center;justify-content:center;
+    color:var(--ink);
+  }
+  .qty-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .qty-num{font-size:13px;font-weight:600;min-width:18px;text-align:center;}
+  .empty-cart{padding:60px 0;text-align:center;color:var(--ink-faint);font-size:13px;}
+
+  .drawer-foot{border-top:1px solid var(--line);padding:20px 28px 28px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:6px;letter-spacing:0.04em;}
+  .field input,.field textarea{
+    width:100%;border:1px solid var(--line);border-radius:8px;
+    padding:10px 12px;font-size:14px;background:var(--bg);color:var(--ink);
+    outline:none;transition:border-color .15s;
+  }
+  .field input:focus,.field textarea:focus{border-color:var(--accent);}
+  .field textarea{resize:vertical;min-height:60px;}
+  .pay-options{display:flex;gap:8px;}
+  .pay-opt{
+    flex:1;border:1px solid var(--line);border-radius:8px;padding:10px 6px;
+    text-align:center;font-size:12px;cursor:pointer;transition:all .15s;
+    background:var(--bg);
+  }
+  .pay-opt.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600;}
+  .total-row{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-family:'Fraunces',serif;font-size:18px;margin:18px 0;
+    padding-top:14px;border-top:1px solid var(--ink);
+  }
+  .submit-btn{
+    width:100%;background:var(--ink);color:var(--surface);border:none;
+    border-radius:999px;padding:14px;font-size:14px;font-weight:600;
+    letter-spacing:0.06em;transition:background .15s;
+  }
+  .submit-btn:hover{background:var(--accent);}
+  .submit-btn:disabled{background:var(--line);color:var(--ink-faint);cursor:default;}
+  .hint{font-size:11px;color:var(--ink-faint);margin-top:8px;line-height:1.6;}
+
+  /* ---------- confirmation ---------- */
+  .confirm-screen{padding:48px 28px;text-align:center;}
+  .confirm-icon{
+    width:56px;height:56px;border-radius:50%;background:var(--sage-soft);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 20px;
+    color:var(--sage);font-size:24px;
+  }
+  .confirm-screen h3{font-family:'Fraunces',serif;font-size:20px;margin:0 0 8px;}
+  .confirm-screen p{font-size:13px;color:var(--ink-soft);line-height:1.7;margin:0 0 24px;}
+  .confirm-id{
+    display:inline-block;font-size:12px;background:var(--bg);
+    border:1px solid var(--line);border-radius:8px;padding:8px 16px;
+    color:var(--ink-soft);letter-spacing:0.06em;margin-bottom:24px;
+  }
+
+  /* ---------- admin ---------- */
+  .admin-bar{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:24px 0;border-bottom:1px solid var(--line);
+  }
+  .admin-tabs{display:flex;gap:4px;}
+  .admin-tab{
+    border:1px solid var(--line);background:var(--surface);
+    border-radius:999px;padding:8px 18px;font-size:13px;font-weight:500;
+    color:var(--ink-soft);
+  }
+  .admin-tab.active{background:var(--ink);color:var(--surface);border-color:var(--ink);}
+  .admin-section{padding:32px 0 80px;}
+  .order-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px 24px;margin-bottom:14px;
+  }
+  .order-card.is-new{border-color:var(--accent);}
+  .order-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+  .order-meta{font-size:12px;color:var(--ink-faint);margin:2px 0 12px;}
+  .order-name{font-family:'Fraunces',serif;font-size:17px;font-weight:500;margin:0;}
+  .order-status{
+    font-size:11px;font-weight:600;letter-spacing:0.08em;padding:5px 12px;
+    border-radius:999px;text-transform:uppercase;border:none;
+  }
+  .status-pending{background:var(--accent-soft);color:var(--accent);}
+  .status-done{background:var(--sage-soft);color:var(--sage);}
+  .order-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;color:var(--ink-soft);}
+  .order-row b{color:var(--ink);font-weight:500;}
+  .order-items{margin:12px 0;padding:12px 0;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);}
+  .order-item-row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;}
+  .order-note{
+    background:var(--bg);border-radius:8px;padding:10px 14px;font-size:13px;
+    margin:10px 0;color:var(--ink);
+  }
+  .order-note b{color:var(--accent);}
+  .order-actions{display:flex;gap:8px;margin-top:14px;}
+  .mini-btn{
+    border:1px solid var(--line);background:var(--surface);border-radius:8px;
+    padding:8px 16px;font-size:12px;font-weight:500;color:var(--ink-soft);
+  }
+  .mini-btn:hover{border-color:var(--ink);color:var(--ink);}
+  .mini-btn.danger:hover{border-color:var(--accent);color:var(--accent);}
+
+  .empty-state{
+    text-align:center;padding:60px 20px;color:var(--ink-faint);font-size:13px;
+    border:1px dashed var(--line);border-radius:var(--radius);
+  }
+
+  .prod-edit-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px;margin-bottom:14px;display:grid;grid-template-columns:80px 1fr;gap:16px;
+  }
+  .prod-swatch{
+    width:80px;height:80px;border-radius:10px;background:var(--swatch,var(--accent-soft));
+  }
+  .prod-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .prod-grid-3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;}
+  .small-input{
+    border:1px solid var(--line);border-radius:8px;padding:8px 10px;
+    font-size:13px;background:var(--bg);color:var(--ink);width:100%;outline:none;
+  }
+  .small-input:focus{border-color:var(--accent);}
+  .small-label{font-size:11px;color:var(--ink-faint);margin-bottom:4px;display:block;}
+  .add-product-btn{
+    width:100%;border:1px dashed var(--line);background:transparent;
+    border-radius:var(--radius);padding:16px;font-size:13px;color:var(--ink-soft);font-weight:500;
+  }
+  .add-product-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+  .gate{
+    max-width:360px;margin:120px auto;text-align:center;
+  }
+  .gate h2{font-family:'Fraunces',serif;font-size:24px;margin:0 0 8px;}
+  .gate p{font-size:13px;color:var(--ink-soft);margin:0 0 24px;}
+
+  .toggle-row{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 20px;margin-bottom:14px;
+  }
+  .toggle-row div p{margin:0;}
+  .toggle-row .t-title{font-size:14px;font-weight:500;margin-bottom:2px;}
+  .toggle-row .t-desc{font-size:12px;color:var(--ink-soft);}
+  .switch{
+    position:relative;width:44px;height:24px;border-radius:999px;background:var(--line);
+    border:none;transition:background .15s;flex-shrink:0;
+  }
+  .switch.on{background:var(--sage);}
+  .switch::after{
+    content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;
+    border-radius:50%;background:#fff;transition:left .15s;
+  }
+  .switch.on::after{left:23px;}
+
+  @media (max-width:640px){
+    .topbar{flex-direction:column;align-items:flex-start;gap:16px;}
+    .topbar-right{width:100%;justify-content:space-between;}
+    .hero h1{font-size:32px;}
+    .drawer{width:100%;}
+    .prod-edit-card{grid-template-columns:1fr;}
+    .prod-swatch{width:100%;height:120px;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============ i18n ============ */
+const LANGS = ['zh','en','hu'];
+const LANG_LABELS = {zh:'中', en:'EN', hu:'HU'};
+
+const I18N = {
+  zh:{
+    shopTag:'手作甜品 · 现做现寄',
+    cart:'购物袋',
+    heroTitle:'用心烘焙的甜点，<br>直接寄到你手上。',
+    heroText:'每一份甜品均为当日现做，选好心意的款式，填写收货地址，剩下的交给我们。',
+    menu:'本周菜单',
+    studio:'手工甜品工作室',
+    adminLink:'商家后台',
+    backShop:'返回商城',
+    soldOut:'今日售罄',
+    addToCart:'加入购物袋',
+    soldOutBtn:'暂时售罄',
+    perItem:'/ 份',
+    emptyCart:'购物袋是空的，去挑选一份甜品吧。',
+    nameLabel:'收货人姓名', namePh:'怎么称呼你',
+    phoneLabel:'联系电话 / 微信', phonePh:'方便联系你的方式',
+    addrLabel:'收货地址', addrPh:'详细地址，包括城市、街道、门牌号',
+    noteLabel:'口味备注 / 特殊要求', notePh:'例如：少糖、不要奶油、第二天送达等',
+    payLabel:'支付方式',
+    payHint:'下单后我们会通过你留下的联系方式，发送对应的收款信息。',
+    total:'合计', submit:'提交订单',
+    payWechat:'微信转账', payCod:'货到付款', payBank:'银行转账',
+    okTitle:'下单成功', okHead:'谢谢你的订单',
+    okText:'我们已经收到你的甜品订单，会尽快为你安排制作与寄送。如有问题会通过你留下的联系方式与你沟通。',
+    orderNo:'订单编号', keepShopping:'继续选购',
+    fillRequired:'请填写收货人姓名、联系方式和收货地址',
+    adminBack:'商家后台',
+    gateTitle:'请输入访问口令', gateText:'用于查看订单与管理菜单，请勿分享给他人。',
+    gatePh:'访问口令', gateEnter:'进入后台', gateWrong:'口令不正确',
+    tabOrders:'订单', tabProducts:'菜单管理', tabSettings:'通知设置',
+    loadingOrders:'加载订单中...',
+    noOrders:'还没有收到订单，分享你的商城链接给顾客吧。',
+    noName:'未填写姓名',
+    statusDone:'已完成', statusPending:'待处理',
+    contact:'联系方式', address:'收货地址', payment:'支付方式',
+    notePrefix:'口味备注：',
+    markPending:'标记为待处理', markDone:'标记为已完成', delOrder:'删除订单',
+    confirmDelOrder:'确定删除这条订单吗？此操作不可恢复。',
+    pName:'名称', pPrice:'价格', pColor:'色块', pDesc:'描述',
+    inStock:'当前有货', delProduct:'删除此商品',
+    confirmDelProduct:'确定删除这个商品吗？',
+    addProduct:'+ 添加新商品', autoSaveHint:'修改后会自动保存，顾客端会实时更新菜单。',
+    newProductName:'新商品', newProductDesc:'请填写描述',
+    notifTitle:'浏览器通知',
+    notifDesc:'开启后，新订单到达时此页面会弹出系统通知（需保持本页打开）',
+    notifOn:'已开启', notifEnable:'开启通知',
+    soundTitle:'提示音', soundDesc:'收到新订单时播放提示音', soundTest:'试听',
+    notifNote:'本页面会每隔几秒自动检查新订单，并在有新订单时弹出通知与提示音 —— 但这需要将本页面保持在浏览器中打开（可以放在后台标签页）。手机系统级的推送（即使关闭浏览器也能收到）需要额外的后端服务和 App，目前暂未包含在此方案中。',
+    notifEnabledTitle:'通知已开启', notifEnabledBody:'有新订单时会在这里提醒你。',
+    newOrderTitle:'收到新订单',
+    newOrderBody:(name,items,total)=>`${name} 订购了 ${items}，合计 ${total}`,
+    notSupported:'当前浏览器不支持通知功能',
+    aboutNotif:'关于实时提醒的说明',
+  },
+  en:{
+    shopTag:'Handmade desserts · made & shipped fresh',
+    cart:'Bag',
+    heroTitle:'Desserts baked with care,<br>shipped straight to you.',
+    heroText:'Every dessert is made fresh to order. Pick what you love, fill in your address, and leave the rest to us.',
+    menu:'This week\u2019s menu',
+    studio:'Handmade dessert studio',
+    adminLink:'Shop admin',
+    backShop:'Back to shop',
+    soldOut:'Sold out today',
+    addToCart:'Add to bag',
+    soldOutBtn:'Sold out',
+    perItem:'/ each',
+    emptyCart:'Your bag is empty. Go pick a dessert.',
+    nameLabel:'Recipient name', namePh:'What should we call you',
+    phoneLabel:'Phone / messaging', phonePh:'How we can reach you',
+    addrLabel:'Delivery address', addrPh:'Full address: city, street, house number',
+    noteLabel:'Taste notes / special requests', notePh:'e.g. less sugar, no cream, deliver tomorrow',
+    payLabel:'Payment method',
+    payHint:'After ordering we\u2019ll send payment details to the contact you provided.',
+    total:'Total', submit:'Place order',
+    payWechat:'WeChat transfer', payCod:'Cash on delivery', payBank:'Bank transfer',
+    okTitle:'Order placed', okHead:'Thank you for your order',
+    okText:'We\u2019ve received your dessert order and will prepare and ship it soon. We\u2019ll reach out via your contact if anything comes up.',
+    orderNo:'Order no.', keepShopping:'Keep shopping',
+    fillRequired:'Please fill in name, contact and delivery address',
+    adminBack:'Shop admin',
+    gateTitle:'Enter access code', gateText:'For viewing orders and managing the menu. Please keep it private.',
+    gatePh:'Access code', gateEnter:'Enter admin', gateWrong:'Incorrect code',
+    tabOrders:'Orders', tabProducts:'Menu', tabSettings:'Notifications',
+    loadingOrders:'Loading orders...',
+    noOrders:'No orders yet. Share your shop link with customers.',
+    noName:'No name',
+    statusDone:'Done', statusPending:'Pending',
+    contact:'Contact', address:'Address', payment:'Payment',
+    notePrefix:'Taste notes: ',
+    markPending:'Mark as pending', markDone:'Mark as done', delOrder:'Delete order',
+    confirmDelOrder:'Delete this order? This cannot be undone.',
+    pName:'Name', pPrice:'Price', pColor:'Color', pDesc:'Description',
+    inStock:'In stock', delProduct:'Delete item',
+    confirmDelProduct:'Delete this item?',
+    addProduct:'+ Add new item', autoSaveHint:'Changes save automatically and update the customer menu in real time.',
+    newProductName:'New item', newProductDesc:'Add a description',
+    notifTitle:'Browser notifications',
+    notifDesc:'When on, new orders pop a system notification (keep this page open).',
+    notifOn:'On', notifEnable:'Turn on',
+    soundTitle:'Sound alert', soundDesc:'Play a sound when a new order arrives', soundTest:'Test',
+    notifNote:'This page checks for new orders every few seconds and pops a notification with a sound when one arrives \u2014 but the page must stay open in your browser (a background tab is fine). True system push (working even when the browser is closed) needs an extra backend and app, not included here.',
+    notifEnabledTitle:'Notifications on', notifEnabledBody:'You\u2019ll be alerted here when new orders arrive.',
+    newOrderTitle:'New order',
+    newOrderBody:(name,items,total)=>`${name} ordered ${items} \u2014 total ${total}`,
+    notSupported:'This browser does not support notifications',
+    aboutNotif:'About live alerts',
+  },
+  hu:{
+    shopTag:'K\u00e9zm\u0171ves desszertek · frissen k\u00e9sz\u00edtve \u00e9s sz\u00e1ll\u00edtva',
+    cart:'Kosár',
+    heroTitle:'Gondosan s\u00fct\u00f6tt desszertek,<br>egyenesen h\u00e1zhoz sz\u00e1ll\u00edtva.',
+    heroText:'Minden desszert friss\u00e9n, rendel\u00e9sre k\u00e9sz\u00fcl. V\u00e1laszd ki, amit szeretsz, add meg a c\u00edmed, a t\u00f6bbit b\u00edzd r\u00e1nk.',
+    menu:'A heti k\u00edn\u00e1lat',
+    studio:'K\u00e9zm\u0171ves desszertm\u0171hely',
+    adminLink:'Admin fel\u00fclet',
+    backShop:'Vissza a bolthoz',
+    soldOut:'Mára elfogyott',
+    addToCart:'Kosárba',
+    soldOutBtn:'Elfogyott',
+    perItem:'/ db',
+    emptyCart:'A kosarad \u00fcres. V\u00e1lassz egy desszertet.',
+    nameLabel:'\u00c1tvev\u0151 neve', namePh:'Hogy sz\u00f3l\u00edtsunk',
+    phoneLabel:'Telefon / \u00fczenet', phonePh:'Hogyan \u00e9rj\u00fcnk el',
+    addrLabel:'Sz\u00e1ll\u00edt\u00e1si c\u00edm', addrPh:'Teljes c\u00edm: v\u00e1ros, utca, h\u00e1zsz\u00e1m',
+    noteLabel:'\u00cdz \u00e9s k\u00fcl\u00f6nleges k\u00e9r\u00e9sek', notePh:'pl. kevesebb cukor, tejszín n\u00e9lk\u00fcl, holnapi sz\u00e1ll\u00edt\u00e1s',
+    payLabel:'Fizet\u00e9si m\u00f3d',
+    payHint:'Rendel\u00e9s ut\u00e1n a megadott el\u00e9rhet\u0151s\u00e9gen elk\u00fcldj\u00fck a fizet\u00e9si adatokat.',
+    total:'\u00d6sszesen', submit:'Megrendel\u00e9s',
+    payWechat:'WeChat utal\u00e1s', payCod:'Ut\u00e1nv\u00e9t', payBank:'Banki utal\u00e1s',
+    okTitle:'Megrendelve', okHead:'K\u00f6sz\u00f6nj\u00fck a rendel\u00e9sed',
+    okText:'Megkaptuk a desszertrendel\u00e9sed, hamarosan elk\u00e9sz\u00edtj\u00fck \u00e9s elk\u00fcldj\u00fck. Ha b\u00e1rmi felmer\u00fcl, a megadott el\u00e9rhet\u0151s\u00e9gen jelentkez\u00fcnk.',
+    orderNo:'Rendel\u00e9ssz\u00e1m', keepShopping:'Tov\u00e1bbi v\u00e1s\u00e1rl\u00e1s',
+    fillRequired:'K\u00e9rj\u00fck add meg a nevet, el\u00e9rhet\u0151s\u00e9get \u00e9s a c\u00edmet',
+    adminBack:'Admin fel\u00fclet',
+    gateTitle:'Add meg a hozz\u00e1f\u00e9r\u00e9si k\u00f3dot', gateText:'Rendel\u00e9sek megtekint\u00e9s\u00e9hez \u00e9s a men\u00fc kezel\u00e9s\u00e9hez. K\u00e9rj\u00fck tartsd titokban.',
+    gatePh:'Hozz\u00e1f\u00e9r\u00e9si k\u00f3d', gateEnter:'Bel\u00e9p\u00e9s', gateWrong:'Helytelen k\u00f3d',
+    tabOrders:'Rendel\u00e9sek', tabProducts:'Men\u00fc', tabSettings:'\u00c9rtes\u00edt\u00e9sek',
+    loadingOrders:'Rendel\u00e9sek bet\u00f6lt\u00e9se...',
+    noOrders:'M\u00e9g nincs rendel\u00e9s. Oszd meg a bolt linkj\u00e9t a vev\u0151kkel.',
+    noName:'Nincs n\u00e9v',
+    statusDone:'K\u00e9sz', statusPending:'F\u00fcgg\u0151ben',
+    contact:'El\u00e9rhet\u0151s\u00e9g', address:'C\u00edm', payment:'Fizet\u00e9s',
+    notePrefix:'\u00cdz megjegyz\u00e9s: ',
+    markPending:'Vissza f\u00fcgg\u0151be', markDone:'K\u00e9szre \u00e1ll\u00edt', delOrder:'Rendel\u00e9s t\u00f6rl\u00e9se',
+    confirmDelOrder:'T\u00f6rl\u00f6d ezt a rendel\u00e9st? Nem vonhat\u00f3 vissza.',
+    pName:'N\u00e9v', pPrice:'\u00c1r', pColor:'Sz\u00edn', pDesc:'Le\u00edr\u00e1s',
+    inStock:'Kaphat\u00f3', delProduct:'T\u00e9tel t\u00f6rl\u00e9se',
+    confirmDelProduct:'T\u00f6rl\u00f6d ezt a t\u00e9telt?',
+    addProduct:'+ \u00daj t\u00e9tel', autoSaveHint:'A m\u00f3dos\u00edt\u00e1sok automatikusan mentődnek \u00e9s val\u00f3s id\u0151ben friss\u00fclnek a vev\u0151i men\u00fcben.',
+    newProductName:'\u00daj t\u00e9tel', newProductDesc:'Adj meg le\u00edr\u00e1st',
+    notifTitle:'B\u00f6ng\u00e9sz\u0151\u00e9rtes\u00edt\u00e9sek',
+    notifDesc:'Bekapcsolva az \u00faj rendel\u00e9sek rendszer\u00e9rtes\u00edt\u00e9st jelen\u00edtenek meg (tartsd nyitva az oldalt).',
+    notifOn:'Bekapcsolva', notifEnable:'Bekapcsol\u00e1s',
+    soundTitle:'Hangjelz\u00e9s', soundDesc:'Hang lej\u00e1tsz\u00e1sa \u00faj rendel\u00e9skor', soundTest:'Teszt',
+    notifNote:'Ez az oldal p\u00e1r m\u00e1sodpercenk\u00e9nt ellen\u0151rzi az \u00faj rendel\u00e9seket, \u00e9s hanggal jelez \u2014 de az oldalnak nyitva kell maradnia a b\u00f6ng\u00e9sz\u0151ben (h\u00e1tt\u00e9rf\u00fcl is j\u00f3). A val\u00f3di rendszerszint\u0171 push (ami z\u00e1rt b\u00f6ng\u00e9sz\u0151vel is m\u0171k\u00f6dik) k\u00fcl\u00f6n szervert \u00e9s alkalmaz\u00e1st ig\u00e9nyel, ez itt nem szerepel.',
+    notifEnabledTitle:'\u00c9rtes\u00edt\u00e9sek bekapcsolva', notifEnabledBody:'Itt sz\u00f3lunk, ha \u00faj rendel\u00e9s \u00e9rkezik.',
+    newOrderTitle:'\u00daj rendel\u00e9s',
+    newOrderBody:(name,items,total)=>`${name} rendelt: ${items} \u2014 \u00f6sszesen ${total}`,
+    notSupported:'Ez a b\u00f6ng\u00e9sz\u0151 nem t\u00e1mogatja az \u00e9rtes\u00edt\u00e9seket',
+    aboutNotif:'Az \u00e9l\u0151 \u00e9rtes\u00edt\u00e9sekr\u0151l',
+  }
+};
+
+let lang = 'zh';
+function t(key){ return I18N[lang][key]; }
+
+/* ============ 配置区 CONFIG ============ */
+/* 把下面两行换成你自己的 Supabase 项目网址和公开密钥(anon key)
+   在 Supabase 后台 Settings → API 里能找到。
+   anon key 设计为可公开放在前端，属正常用法。 */
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+const SHOP_NAME = '甜光';
+const ADMIN_CODE = '0606';
+
+/* ============ Supabase 客户端 ============ */
+let sb = null;
+let sbReady = false;
+function initSupabase(){
+  try{
+    if(window.supabase && SUPABASE_URL.startsWith('http')){
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      sbReady = true;
+    }
+  }catch(e){ sbReady = false; }
+  return sbReady;
+}
+
+const DEFAULT_PRODUCTS = [
+  {id:'p1', name:{zh:'草莓奶油蛋糕杯', en:'Strawberry cream cup', hu:'Eperkr\u00e9mes pohárk\u00e9s'}, desc:{zh:'新鲜草莓与轻乳脂奶油层层叠放，杯装方便携带。', en:'Fresh strawberries layered with light cream in a portable cup.', hu:'Friss eper k\u00f6nny\u0171 tejszínnel r\u00e9tegezve, hordozhat\u00f3 pohárban.'}, price:1800, swatch:'#F7DCE0', available:true},
+  {id:'p2', name:{zh:'抹茶红豆千层', en:'Matcha red bean mille-crepe', hu:'Matcha-vörösbab mille-crepe'}, desc:{zh:'十二层手工可丽饼皮，搭配浓郁宇治抹茶与蜜红豆。', en:'Twelve handmade crepe layers with rich Uji matcha and sweet red bean.', hu:'Tizenk\u00e9t k\u00e9zzel k\u00e9sz\u00edtett palacsintar\u00e9teg gazdag Uji matcháv al \u00e9s \u00e9des vörösbabbal.'}, price:2100, swatch:'#DCE5D0', available:true},
+  {id:'p3', name:{zh:'芒果布丁', en:'Mango pudding', hu:'Mang\u00f3puding'}, desc:{zh:'当季芒果打底，椰浆布丁顺滑细腻。', en:'Seasonal mango base with silky coconut pudding.', hu:'Sz\u00e9zonális mang\u00f3 selymes kókuszpudinggal.'}, price:1200, swatch:'#FBE6BE', available:true},
+  {id:'p4', name:{zh:'巴斯克烤芝士', en:'Basque cheesecake', hu:'Baszk sajttorta'}, desc:{zh:'高温烘烤至焦香表面，内里绵密如云。', en:'Baked to a caramelized top with a cloud-soft center.', hu:'Karamellizált tetej\u0171re s\u00fctve, felh\u0151lágy belsővel.'}, price:2900, swatch:'#EFDCC7', available:true},
+  {id:'p5', name:{zh:'提拉米苏', en:'Tiramisu', hu:'Tiramis\u00fa'}, desc:{zh:'经典意式做法，咖啡酒香浓郁，可可粉收尾。', en:'Classic Italian recipe, rich coffee-liqueur aroma, dusted with cocoa.', hu:'Klasszikus olasz recept, gazdag k\u00e1v\u00e9-liker aromával, kakaóporral.'}, price:1900, swatch:'#E3D6CE', available:true},
+  {id:'p6', name:{zh:'黑糖珍珠双皮奶', en:'Brown sugar pearl milk custard', hu:'Barnacukros gy\u00f6ngyös tejpuding'}, desc:{zh:'顺滑双皮奶搭配黑糖波霸，口感层次丰富。', en:'Silky double-skin milk custard with chewy brown sugar pearls.', hu:'Selymes tejpuding rágós barnacukros gy\u00f6ngyökkel.'}, price:1400, swatch:'#EAD9CB', available:true},
+  {id:'p7', name:{zh:'雪花酥', en:'Snowflake crisp', hu:'H\u00f3pehely ropog\u00f3s'}, desc:{zh:'酥脆饼干、棉花糖与坚果交织，撒上奶粉如雪。', en:'Crisp biscuit, marshmallow and nuts bound together, dusted with milk powder like snow.', hu:'Ropog\u00f3s keksz, pillecukor \u00e9s di\u00f3 \u00f6sszefonva, hóként tejporral megsz\u00f3rva.'}, price:1600, swatch:'#F0ECE6', available:true},
+];
+
+function pf(field){
+  // resolve a possibly-multilingual field to current language
+  if(field && typeof field === 'object') return field[lang] || field.zh || field.en || '';
+  return field || '';
+}
+
+/* ============ storage: 商品 (Supabase 表 products) ============ */
+/* 表结构: id text 主键, data jsonb (存整条商品), sort int */
+async function getProducts(){
+  if(sbReady){
+    try{
+      const {data, error} = await sb.from('products').select('id,data,sort').order('sort',{ascending:true});
+      if(error) throw error;
+      if(data && data.length){
+        return data.map(row => ({...row.data, id: row.id}));
+      }
+      // 表为空 → 写入默认商品做初始化
+      await seedProducts();
+      return DEFAULT_PRODUCTS;
+    }catch(e){
+      console.error('getProducts', e);
+      return DEFAULT_PRODUCTS;
+    }
+  }
+  return DEFAULT_PRODUCTS;
+}
+async function seedProducts(){
+  if(!sbReady) return;
+  const rows = DEFAULT_PRODUCTS.map((p,i)=>({id:p.id, data:p, sort:i}));
+  try{ await sb.from('products').upsert(rows); }catch(e){ console.error('seed', e); }
+}
+async function saveProducts(list){
+  if(!sbReady) return;
+  const rows = list.map((p,i)=>({id:p.id, data:p, sort:i}));
+  try{
+    await sb.from('products').upsert(rows);
+    // 删除已不在列表里的商品
+    const ids = list.map(p=>p.id);
+    const {data} = await sb.from('products').select('id');
+    if(data){
+      const toDelete = data.filter(r=>!ids.includes(r.id)).map(r=>r.id);
+      if(toDelete.length) await sb.from('products').delete().in('id', toDelete);
+    }
+  }catch(e){ console.error('saveProducts', e); }
+}
+
+/* ============ storage: 订单 (Supabase 表 orders) ============ */
+/* 表结构: id text 主键, data jsonb, created_at timestamptz default now() */
+async function getOrders(){
+  if(sbReady){
+    try{
+      const {data, error} = await sb.from('orders').select('id,data,created_at').order('created_at',{ascending:true});
+      if(error) throw error;
+      if(data) return data.map(row => ({...row.data, id: row.id}));
+    }catch(e){ console.error('getOrders', e); }
+  }
+  return [];
+}
+async function insertOrder(order){
+  if(!sbReady) return;
+  try{
+    await sb.from('orders').insert({id:order.id, data:order});
+  }catch(e){ console.error('insertOrder', e); }
+}
+async function updateOrder(order){
+  if(!sbReady) return;
+  try{
+    await sb.from('orders').update({data:order}).eq('id', order.id);
+  }catch(e){ console.error('updateOrder', e); }
+}
+async function deleteOrderRow(id){
+  if(!sbReady) return;
+  try{
+    await sb.from('orders').delete().eq('id', id);
+  }catch(e){ console.error('deleteOrder', e); }
+}
+
+/* ============ storage: 本地偏好 (localStorage) ============ */
+function getSeenCount(){
+  try{ return parseInt(localStorage.getItem('seen_order_count')||'0',10); }catch(e){ return 0; }
+}
+function setSeenCount(n){
+  try{ localStorage.setItem('seen_order_count', String(n)); }catch(e){}
+}
+function getLang(){
+  try{
+    const v = localStorage.getItem('lang');
+    if(v && LANGS.includes(v)) return v;
+  }catch(e){}
+  return 'zh';
+}
+function setLang(l){
+  try{ localStorage.setItem('lang', l); }catch(e){}
+}
+
+/* ============ utils ============ */
+function fmt(n){
+  const v = Math.round(Number(n));
+  return v.toLocaleString('hu-HU') + ' Ft';
+}
+function genId(){
+  const d = new Date();
+  const pad = x => String(x).padStart(2,'0');
+  return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function beep(){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type='sine'; o.frequency.value=880;
+    g.gain.setValueAtTime(0.001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime+0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.5);
+    o.start(); o.stop(ctx.currentTime+0.5);
+    setTimeout(()=>{
+      const o2 = ctx.createOscillator(); const g2 = ctx.createGain();
+      o2.connect(g2); g2.connect(ctx.destination);
+      o2.type='sine'; o2.frequency.value=1100;
+      g2.gain.setValueAtTime(0.001, ctx.currentTime);
+      g2.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime+0.01);
+      g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.5);
+      o2.start(); o2.stop(ctx.currentTime+0.5);
+    },150);
+  }catch(e){}
+}
+
+/* ============ pay method canonical keys ============ */
+const PAY_KEYS = ['wechat','cod','bank'];
+function payLabel(key){
+  return {wechat:t('payWechat'), cod:t('payCod'), bank:t('payBank')}[key] || key;
+}
+
+/* ============ global state ============ */
+let cart = [];
+let products = [];
+let view = 'shop';
+let adminUnlocked = false;
+let adminTab = 'orders';
+
+/* ============ routing ============ */
+function parseHash(){
+  return location.hash === '#/admin' ? 'admin' : 'shop';
+}
+window.addEventListener('hashchange', async ()=>{
+  view = parseHash();
+  window._confirmedOrder = null;
+  await render();
+});
+
+/* ============ render root ============ */
+async function render(){
+  const app = document.getElementById('app');
+  if(view === 'admin'){
+    app.innerHTML = adminUnlocked ? renderAdmin() : renderGate();
+  } else {
+    app.innerHTML = renderShop();
+  }
+  attachHandlers();
+}
+
+/* ============ language switcher ============ */
+function renderLangSwitch(){
+  return `<div class="lang-switch">
+    ${LANGS.map(l => `<button class="lang-opt ${lang===l?'active':''}" data-lang="${l}">${LANG_LABELS[l]}</button>`).join('')}
+  </div>`;
+}
+
+/* ============ shop view ============ */
+function renderShop(){
+  const cartCount = cart.reduce((s,i)=>s+i.qty,0);
+  return `
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <span class="brand-mark">${SHOP_NAME}</span>
+        <span class="brand-tag">${t('shopTag')}</span>
+      </div>
+      <div class="topbar-right">
+        ${renderLangSwitch()}
+        <button class="cart-btn" id="open-cart">
+          ${t('cart')}
+          ${cartCount>0 ? `<span class="cart-count">${cartCount}</span>` : ''}
+        </button>
+      </div>
+    </div>
+
+    <div class="hero">
+      <h1>${t('heroTitle')}</h1>
+      <div class="hero-rule"></div>
+      <p>${t('heroText')}</p>
+    </div>
+
+    <p class="section-label">${t('menu')}</p>
+    <div class="grid">
+      ${products.map(p => renderProductCard(p)).join('')}
+    </div>
+
+    <div class="footer">
+      <span>${SHOP_NAME} · ${t('studio')}</span>
+      <a href="#/admin">${t('adminLink')}</a>
+    </div>
+  </div>
+
+  ${renderCartDrawer()}
+  `;
+}
+
+function renderProductCard(p){
+  const name = pf(p.name);
+  const desc = pf(p.desc);
+  return `
+  <div class="card">
+    <div class="card-media" style="--swatch:${p.swatch || '#F1E3DC'}">
+      ${p.image ? `<img src="${escapeHtml(p.image)}" alt="${escapeHtml(name)}">` : `<span class="glyph">${escapeHtml(name.slice(0,1))}</span>`}
+      ${!p.available ? `<div class="card-sold">${t('soldOut')}</div>` : ''}
+    </div>
+    <div class="card-body">
+      <div class="card-title-row">
+        <h3 class="card-title">${escapeHtml(name)}</h3>
+        <span class="card-price">${fmt(p.price)}</span>
+      </div>
+      <p class="card-desc">${escapeHtml(desc)}</p>
+      <button class="card-add" data-add="${p.id}" ${!p.available?'disabled':''}>
+        ${p.available ? t('addToCart') : t('soldOutBtn')}
+      </button>
+    </div>
+  </div>`;
+}
+
+function renderCartDrawer(){
+  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const payMethod = cart._form?.pay || 'wechat';
+  if(window._confirmedOrder){
+    const o = window._confirmedOrder;
+    return `
+    <div class="overlay open" id="overlay"></div>
+    <div class="drawer open" id="drawer">
+      <div class="drawer-head">
+        <h2>${t('okTitle')}</h2>
+        <button class="drawer-close" id="close-drawer">&times;</button>
+      </div>
+      <div class="confirm-screen">
+        <div class="confirm-icon">✓</div>
+        <h3>${t('okHead')}</h3>
+        <p>${t('okText')}</p>
+        <div class="confirm-id">${t('orderNo')} ${o.id}</div>
+        <button class="submit-btn" id="back-to-shop">${t('keepShopping')}</button>
+      </div>
+    </div>`;
+  }
+
+  return `
+  <div class="overlay ${cart._open?'open':''}" id="overlay"></div>
+  <div class="drawer ${cart._open?'open':''}" id="drawer">
+    <div class="drawer-head">
+      <h2>${t('cart')}</h2>
+      <button class="drawer-close" id="close-drawer">&times;</button>
+    </div>
+    <div class="drawer-body">
+      ${cart.length === 0 ? `<div class="empty-cart">${t('emptyCart')}</div>` :
+        cart.map(i => `
+        <div class="ticket-item">
+          <div>
+            <p class="ticket-name">${escapeHtml(pf(i.name))}</p>
+            <p class="ticket-price">${fmt(i.price)} ${t('perItem')}</p>
+          </div>
+          <div class="qty-control">
+            <button class="qty-btn" data-dec="${i.id}">−</button>
+            <span class="qty-num">${i.qty}</span>
+            <button class="qty-btn" data-inc="${i.id}">+</button>
+          </div>
+        </div>`).join('')
+      }
+    </div>
+    ${cart.length > 0 ? `
+    <div class="drawer-foot">
+      <div class="field">
+        <label>${t('nameLabel')}</label>
+        <input type="text" id="f-name" placeholder="${t('namePh')}" value="${escapeHtml(cart._form?.name||'')}">
+      </div>
+      <div class="field">
+        <label>${t('phoneLabel')}</label>
+        <input type="text" id="f-phone" placeholder="${t('phonePh')}" value="${escapeHtml(cart._form?.phone||'')}">
+      </div>
+      <div class="field">
+        <label>${t('addrLabel')}</label>
+        <textarea id="f-address" placeholder="${t('addrPh')}">${escapeHtml(cart._form?.address||'')}</textarea>
+      </div>
+      <div class="field">
+        <label>${t('noteLabel')}</label>
+        <textarea id="f-note" placeholder="${t('notePh')}">${escapeHtml(cart._form?.note||'')}</textarea>
+      </div>
+      <div class="field">
+        <label>${t('payLabel')}</label>
+        <div class="pay-options">
+          ${PAY_KEYS.map(k => `<div class="pay-opt ${payMethod===k?'active':''}" data-pay="${k}">${payLabel(k)}</div>`).join('')}
+        </div>
+        <p class="hint">${t('payHint')}</p>
+      </div>
+      <div class="total-row">
+        <span>${t('total')}</span>
+        <span>${fmt(total)}</span>
+      </div>
+      <button class="submit-btn" id="submit-order">${t('submit')}</button>
+    </div>` : ''}
+  </div>`;
+}
+
+/* ============ admin: gate ============ */
+function renderGate(){
+  return `
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand"><span class="brand-mark">${SHOP_NAME}</span><span class="brand-tag">${t('adminBack')}</span></div>
+      <div class="topbar-right">${renderLangSwitch()}<a class="cart-btn" href="#/">${t('backShop')}</a></div>
+    </div>
+    <div class="gate">
+      <h2>${t('gateTitle')}</h2>
+      <p>${t('gateText')}</p>
+      <div class="field">
+        <input type="password" id="admin-code" placeholder="${t('gatePh')}">
+      </div>
+      <button class="submit-btn" id="admin-enter">${t('gateEnter')}</button>
+    </div>
+  </div>`;
+}
+
+/* ============ admin: main ============ */
+function renderAdmin(){
+  return `
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand"><span class="brand-mark">${SHOP_NAME}</span><span class="brand-tag">${t('adminBack')}</span></div>
+      <div class="topbar-right">${renderLangSwitch()}<a class="cart-btn" href="#/">${t('backShop')}</a></div>
+    </div>
+    <div class="admin-bar">
+      <div class="admin-tabs">
+        <button class="admin-tab ${adminTab==='orders'?'active':''}" data-tab="orders">${t('tabOrders')}</button>
+        <button class="admin-tab ${adminTab==='products'?'active':''}" data-tab="products">${t('tabProducts')}</button>
+        <button class="admin-tab ${adminTab==='settings'?'active':''}" data-tab="settings">${t('tabSettings')}</button>
+      </div>
+    </div>
+    <div class="admin-section" id="admin-content">
+      ${adminTab==='orders' ? renderAdminOrdersPlaceholder() : ''}
+      ${adminTab==='products' ? renderAdminProducts() : ''}
+      ${adminTab==='settings' ? renderAdminSettings() : ''}
+    </div>
+  </div>`;
+}
+
+function renderAdminOrdersPlaceholder(){
+  return `<div class="empty-state">${t('loadingOrders')}</div>`;
+}
+
+async function renderAdminOrders(){
+  const allOrders = await getOrders();
+  const orders = allOrders.slice().reverse();
+  const seen = getSeenCount();
+  const content = document.getElementById('admin-content');
+  if(!content) return;
+  if(orders.length === 0){
+    content.innerHTML = `<div class="empty-state">${t('noOrders')}</div>`;
+    return;
+  }
+  const total = allOrders.length;
+  content.innerHTML = orders.map((o, idx) => {
+    const realIdx = total - 1 - idx;
+    const isNew = realIdx >= seen;
+    const done = o.status==='done';
+    return `
+    <div class="order-card ${isNew?'is-new':''}">
+      <div class="order-top">
+        <div>
+          <p class="order-name">${escapeHtml(o.customerName||t('noName'))}</p>
+          <p class="order-meta">${t('orderNo')} ${o.id} · ${o.createdAtText||''}</p>
+        </div>
+        <button class="order-status ${done?'status-done':'status-pending'}" data-toggle-status="${o.id}">
+          ${done?t('statusDone'):t('statusPending')}
+        </button>
+      </div>
+      <div class="order-row"><span>${t('contact')}</span><b>${escapeHtml(o.phone||'-')}</b></div>
+      <div class="order-row"><span>${t('address')}</span><b>${escapeHtml(o.address||'-')}</b></div>
+      <div class="order-row"><span>${t('payment')}</span><b>${escapeHtml(payLabel(o.paymentMethod)||'-')}</b></div>
+      <div class="order-items">
+        ${o.items.map(i => `<div class="order-item-row"><span>${escapeHtml(pf(i.name))} × ${i.qty}</span><span>${fmt(i.price*i.qty)}</span></div>`).join('')}
+      </div>
+      <div class="order-row"><span>${t('total')}</span><b>${fmt(o.total)}</b></div>
+      ${o.note ? `<div class="order-note"><b>${t('notePrefix')}</b>${escapeHtml(o.note)}</div>` : ''}
+      <div class="order-actions">
+        <button class="mini-btn" data-toggle-status="${o.id}">${done?t('markPending'):t('markDone')}</button>
+        <button class="mini-btn danger" data-delete-order="${o.id}">${t('delOrder')}</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  setSeenCount(total);
+  attachAdminOrderHandlers();
+}
+
+/* ============ admin: products ============ */
+function renderAdminProducts(){
+  return `
+    ${products.map(p => {
+      const name = pf(p.name);
+      const desc = pf(p.desc);
+      return `
+    <div class="prod-edit-card" data-pid="${p.id}">
+      <div class="prod-swatch" style="--swatch:${p.swatch||'#F1E3DC'}"></div>
+      <div>
+        <div class="prod-grid-3">
+          <div>
+            <span class="small-label">${t('pName')} (${LANG_LABELS[lang]})</span>
+            <input class="small-input" data-field="name" value="${escapeHtml(name)}">
+          </div>
+          <div>
+            <span class="small-label">${t('pPrice')} (Ft)</span>
+            <input class="small-input" data-field="price" type="number" min="0" value="${p.price}">
+          </div>
+          <div>
+            <span class="small-label">${t('pColor')}</span>
+            <input class="small-input" data-field="swatch" type="color" value="${p.swatch||'#F1E3DC'}" style="height:34px;padding:2px;">
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <span class="small-label">${t('pDesc')} (${LANG_LABELS[lang]})</span>
+          <input class="small-input" data-field="desc" value="${escapeHtml(desc)}">
+        </div>
+        <div class="prod-grid-2" style="margin-top:10px;align-items:end;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft);">
+            <input type="checkbox" data-field="available" ${p.available?'checked':''}> ${t('inStock')}
+          </label>
+          <button class="mini-btn danger" data-remove-product="${p.id}">${t('delProduct')}</button>
+        </div>
+      </div>
+    </div>`;}).join('')}
+    <button class="add-product-btn" id="add-product">${t('addProduct')}</button>
+    <p class="hint" style="margin-top:14px;">${t('autoSaveHint')}</p>
+  `;
+}
+
+/* ============ admin: settings ============ */
+function renderAdminSettings(){
+  const granted = ('Notification' in window) && Notification.permission === 'granted';
+  return `
+    <div class="toggle-row">
+      <div>
+        <p class="t-title">${t('notifTitle')}</p>
+        <p class="t-desc">${t('notifDesc')}</p>
+      </div>
+      <button class="mini-btn" id="enable-notif">${granted?t('notifOn'):t('notifEnable')}</button>
+    </div>
+    <div class="toggle-row">
+      <div>
+        <p class="t-title">${t('soundTitle')}</p>
+        <p class="t-desc">${t('soundDesc')}</p>
+      </div>
+      <button class="mini-btn" id="test-sound">${t('soundTest')}</button>
+    </div>
+    <div class="empty-state" style="text-align:left;">
+      <p style="margin:0 0 8px;color:var(--ink);font-weight:500;">${t('aboutNotif')}</p>
+      <p style="margin:0;">${t('notifNote')}</p>
+    </div>
+  `;
+}
+
+/* ============ event handlers ============ */
+function attachHandlers(){
+  document.querySelectorAll('[data-lang]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      lang = btn.getAttribute('data-lang');
+      setLang(lang);
+      await render();
+    });
+  });
+
+  if(view === 'shop'){
+    document.getElementById('open-cart')?.addEventListener('click', ()=>{
+      cart._open = true; render();
+    });
+    document.getElementById('close-drawer')?.addEventListener('click', ()=>{
+      cart._open = false; window._confirmedOrder = null; render();
+    });
+    document.getElementById('overlay')?.addEventListener('click', ()=>{
+      cart._open = false; window._confirmedOrder = null; render();
+    });
+    document.getElementById('back-to-shop')?.addEventListener('click', ()=>{
+      cart = []; cart._open = false; window._confirmedOrder = null; render();
+    });
+    document.querySelectorAll('[data-add]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.getAttribute('data-add');
+        const p = products.find(x=>x.id===id);
+        const existing = cart.find(x=>x.id===id);
+        if(existing) existing.qty++;
+        else cart.push({id:p.id, name:p.name, price:p.price, qty:1});
+        cart._open = true;
+        render();
+      });
+    });
+    document.querySelectorAll('[data-inc]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.getAttribute('data-inc');
+        const item = cart.find(x=>x.id===id);
+        item.qty++; render();
+      });
+    });
+    document.querySelectorAll('[data-dec]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.getAttribute('data-dec');
+        const item = cart.find(x=>x.id===id);
+        item.qty--;
+        if(item.qty<=0) cart = cart.filter(x=>x.id!==id);
+        render();
+      });
+    });
+    document.querySelectorAll('[data-pay]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        cart._form = cart._form || {};
+        cart._form.pay = el.getAttribute('data-pay');
+        render();
+      });
+    });
+    document.getElementById('submit-order')?.addEventListener('click', submitOrder);
+    const fieldMap = {'f-name':'name','f-phone':'phone','f-address':'address','f-note':'note'};
+    Object.keys(fieldMap).forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.addEventListener('input', ()=>{
+        cart._form = cart._form || {};
+        cart._form[fieldMap[id]] = el.value;
+      });
+    });
+  } else if(view === 'admin'){
+    if(!adminUnlocked){
+      document.getElementById('admin-enter')?.addEventListener('click', ()=>{
+        const code = document.getElementById('admin-code').value;
+        if(code === ADMIN_CODE){
+          adminUnlocked = true; startPolling(); render();
+        } else {
+          alert(t('gateWrong'));
+        }
+      });
+      document.getElementById('admin-code')?.addEventListener('keydown', e=>{
+        if(e.key==='Enter') document.getElementById('admin-enter').click();
+      });
+    } else {
+      document.querySelectorAll('.admin-tab').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          adminTab = btn.getAttribute('data-tab');
+          render();
+        });
+      });
+      if(adminTab === 'orders') renderAdminOrders();
+      if(adminTab === 'products') attachAdminProductHandlers();
+      if(adminTab === 'settings') attachAdminSettingsHandlers();
+    }
+  }
+}
+
+/* ============ submit order ============ */
+async function submitOrder(){
+  const name = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const address = document.getElementById('f-address').value.trim();
+  const note = document.getElementById('f-note').value.trim();
+  const pay = cart._form?.pay || 'wechat';
+
+  if(!name || !phone || !address){
+    alert(t('fillRequired'));
+    return;
+  }
+
+  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const order = {
+    id: genId(),
+    createdAt: Date.now(),
+    createdAtText: new Date().toLocaleString(),
+    items: cart.map(i=>({id:i.id, name:i.name, price:i.price, qty:i.qty})),
+    total,
+    customerName: name,
+    phone,
+    address,
+    note,
+    paymentMethod: pay,
+    status: 'pending'
+  };
+
+  await insertOrder(order);
+
+  window._confirmedOrder = order;
+  cart = [];
+  cart._open = true;
+  render();
+}
+
+/* ============ admin: orders handlers ============ */
+function attachAdminOrderHandlers(){
+  document.querySelectorAll('[data-toggle-status]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-toggle-status');
+      const orders = await getOrders();
+      const o = orders.find(x=>x.id===id);
+      if(!o) return;
+      o.status = o.status==='done' ? 'pending' : 'done';
+      await updateOrder(o);
+      await renderAdminOrders();
+    });
+  });
+  document.querySelectorAll('[data-delete-order]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-delete-order');
+      if(!confirm(t('confirmDelOrder'))) return;
+      await deleteOrderRow(id);
+      await renderAdminOrders();
+    });
+  });
+}
+
+/* ============ admin: products handlers ============ */
+function attachAdminProductHandlers(){
+  document.querySelectorAll('.prod-edit-card').forEach(card=>{
+    const id = card.getAttribute('data-pid');
+    card.querySelectorAll('[data-field]').forEach(input=>{
+      const onChange = async ()=>{
+        const p = products.find(x=>x.id===id);
+        if(!p) return;
+        const field = input.getAttribute('data-field');
+        if(field === 'available'){ p[field] = input.checked; }
+        else if(field === 'price'){ p[field] = parseFloat(input.value) || 0; }
+        else if(field === 'name' || field === 'desc'){
+          if(!p[field] || typeof p[field] !== 'object') p[field] = {zh:'',en:'',hu:''};
+          p[field][lang] = input.value;
+        }
+        else { p[field] = input.value; }
+        await saveProducts(products);
+        if(field === 'swatch'){
+          card.querySelector('.prod-swatch').style.setProperty('--swatch', input.value);
+        }
+      };
+      input.addEventListener('change', onChange);
+      if(input.tagName === 'INPUT' && input.type === 'text'){
+        input.addEventListener('blur', onChange);
+      }
+    });
+    card.querySelector('[data-remove-product]')?.addEventListener('click', async ()=>{
+      if(!confirm(t('confirmDelProduct'))) return;
+      products = products.filter(x=>x.id!==id);
+      await saveProducts(products);
+      render();
+    });
+  });
+  document.getElementById('add-product')?.addEventListener('click', async ()=>{
+    const newP = {id:'p'+Date.now(), name:{zh:t('newProductName'),en:t('newProductName'),hu:t('newProductName')}, desc:{zh:t('newProductDesc'),en:t('newProductDesc'),hu:t('newProductDesc')}, price:0, swatch:'#F1E3DC', available:true};
+    products.push(newP);
+    await saveProducts(products);
+    render();
+  });
+}
+
+/* ============ admin: settings handlers ============ */
+function attachAdminSettingsHandlers(){
+  document.getElementById('enable-notif')?.addEventListener('click', async ()=>{
+    if(!('Notification' in window)){
+      alert(t('notSupported'));
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    if(perm === 'granted'){
+      startPolling();
+      new Notification(t('notifEnabledTitle'), {body:t('notifEnabledBody')});
+    }
+    render();
+  });
+  document.getElementById('test-sound')?.addEventListener('click', beep);
+}
+
+/* ============ new order polling + 实时订阅 ============ */
+let pollTimer = null;
+let realtimeSub = null;
+function startPolling(){
+  // Supabase 实时订阅：顾客一插入订单，后台立刻收到
+  if(sbReady && !realtimeSub){
+    try{
+      realtimeSub = sb.channel('orders-feed')
+        .on('postgres_changes', {event:'INSERT', schema:'public', table:'orders'}, async ()=>{
+          beep();
+          if(('Notification' in window) && Notification.permission === 'granted'){
+            const orders = await getOrders();
+            const newest = orders[orders.length-1];
+            if(newest){
+              const itemsStr = newest.items.map(i=>pf(i.name)).join(lang==='zh'?'、':', ');
+              new Notification(t('newOrderTitle'), {
+                body: t('newOrderBody')(newest.customerName, itemsStr, fmt(newest.total))
+              });
+            }
+          }
+          if(view === 'admin' && adminUnlocked && adminTab === 'orders') await renderAdminOrders();
+        })
+        .subscribe();
+    }catch(e){ console.error('realtime', e); }
+  }
+  // 兜底轮询（实时订阅未生效时仍可用）
+  if(pollTimer) return;
+  pollTimer = setInterval(async ()=>{
+    if(view !== 'admin' || !adminUnlocked) return;
+    const orders = await getOrders();
+    const seen = getSeenCount();
+    if(orders.length > seen){
+      beep();
+      if(('Notification' in window) && Notification.permission === 'granted'){
+        const newest = orders[orders.length-1];
+        const itemsStr = newest.items.map(i=>pf(i.name)).join(lang==='zh'?'、':', ');
+        new Notification(t('newOrderTitle'), {
+          body: t('newOrderBody')(newest.customerName, itemsStr, fmt(newest.total))
+        });
+      }
+      if(adminTab === 'orders') await renderAdminOrders();
+    }
+  }, 15000);
+}
+
+/* ============ init ============ */
+async function init(){
+  initSupabase();
+  lang = getLang();
+  if(!sbReady){
+    showConfigBanner();
+  }
+  products = await getProducts();
+  view = parseHash();
+  cart._open = cart._open || false;
+  await render();
+}
+
+function showConfigBanner(){
+  const b = document.createElement('div');
+  b.style.cssText = 'position:fixed;left:0;right:0;bottom:0;background:#A5573E;color:#fff;padding:12px 20px;font-size:13px;text-align:center;z-index:99;font-family:sans-serif;';
+  b.textContent = '⚠️ 尚未配置 Supabase：请在代码顶部填入 SUPABASE_URL 和 SUPABASE_ANON_KEY。当前菜单为默认演示数据，下单不会保存。';
+  document.body.appendChild(b);
+}
+init();
+
+</script>
+
+</body>
+</html>
